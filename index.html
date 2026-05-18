@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>🦄 VIBECRAFT ULTRA — Startup Name Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg1: #05030f;
+            --bg2: #0d0828;
+            --accent: #ff2fff;
+            --accent2: #00ffcc;
+            --accent3: #ffe100;
+            --card: rgba(255,255,255,0.04);
+            --border: rgba(255,255,255,0.08);
+            --text: #f0eaff;
+            --muted: #5c5480;
+            --danger: #ff3a3a;
+            --tier-s: linear-gradient(90deg, #ffd700, #ff8c00);
+            --tier-a: linear-gradient(90deg, #ff2fff, #8b00ff);
+            --tier-b: linear-gradient(90deg, #00ffcc, #0080ff);
+            --tier-c: linear-gradient(90deg, #aaa, #666);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg1);
+            min-height: 100vh;
+            font-family: 'Syne', sans-serif;
+            color: var(--text);
+            overflow-x: hidden;
+            padding: 1rem 1rem 4rem;
+        }
+
+        /* === ANIMATED BG === */
+        .bg-noise {
+            position: fixed; inset: 0; z-index: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 20%, rgba(139,0,255,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 80% at 80% 80%, rgba(0,255,204,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 40% at 50% 50%, rgba(255,47,255,0.06) 0%, transparent 70%);
+            animation: bgpulse 8s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+        @keyframes bgpulse {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; transform: scale(1.05); }
+        }
+
+        .container {
+            position: relative; z-index: 1;
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        /* === HEADER === */
+        .header {
+            text-align: center;
+            padding: 2rem 0 1rem;
+        }
+
+        .header h1 {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1;
+            background: linear-gradient(135deg, #ff2fff 0%, #ffe100 50%, #00ffcc 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            animation: titleshine 3s ease-in-out infinite;
+        }
+        @keyframes titleshine {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3) drop-shadow(0 0 20px #ff2fff); }
+        }
+
+        .header .tagline {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-top: 0.5rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* === TABS === */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 1.5rem 0 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.5rem 1.2rem;
+            border-radius: 2rem;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab.active {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(255,47,255,0.4);
+        }
+
+        /* === PANELS === */
+        .panel { display: none; }
+        .panel.active { display: block; }
+
+        /* === MAIN GENERATOR === */
+        .name-box {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--border);
+            border-radius: 2rem;
+            padding: 2.5rem 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .name-box::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,47,255,0.05), rgba(0,255,204,0.05));
+            pointer-events: none;
+        }
+
+        #startupName {
+            font-size: clamp(1.8rem, 5vw, 3.2rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            word-break: break-word;
+            transition: opacity 0.12s;
+        }
+
+        .name-tier {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-top: 0.75rem;
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-weight: 700;
+        }
+
+        .tier-S { background: var(--tier-s); color: #000; }
+        .tier-A { background: var(--tier-a); color: #fff; }
+        .tier-B { background: var(--tier-b); color: #000; }
+        .tier-C { background: var(--tier-c); color: #fff; }
+
+        #valuationBadge {
+            display: block;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--muted);
+            margin-top: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* === STATS ROW === */
+        .stats-row {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .stat-chip {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            letter-spacing: 0.05em;
+        }
+
+        /* === CONTROLS === */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .btn {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 0.75rem 1.75rem;
+            border-radius: 3rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.15s;
+            letter-spacing: -0.01em;
+        }
+        .btn:hover { transform: translateY(-2px) scale(1.03); filter: brightness(1.1); }
+        .btn:active { transform: scale(0.97); }
+
+        .btn-primary { background: linear-gradient(135deg, #ff2fff, #8b00ff); color: white; box-shadow: 0 8px 25px rgba(255,47,255,0.3); }
+        .btn-linkedin { background: linear-gradient(135deg, #0077b5, #00a0dc); color: white; }
+        .btn-tweet { background: linear-gradient(135deg, #000, #1a1a1a); color: white; border: 1px solid #333; }
+        .btn-dark { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid var(--border); }
+        .btn-dark.active { background: var(--accent); color: #000; border-color: var(--accent); }
+        .btn-chaos { background: linear-gradient(135deg, #ff3a3a, #ff8c00, #ffe100); color: #000; font-size: 0.85rem; }
+        .btn-save { background: rgba(0,255,204,0.1); color: var(--accent2); border: 1px solid rgba(0,255,204,0.2); }
+        .btn-battle { background: linear-gradient(135deg, #ff3a3a, #8b00ff); color: white; box-shadow: 0 8px 25px rgba(255,58,58,0.3); }
+
+        /* === SLIDERS / OPTIONS === */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+
+        .option-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1.2rem;
+            padding: 1rem;
+        }
+
+        .option-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .option-select {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            color: var(--text);
+            font-family: 'Syne', sans-serif;
+            font-size: 0.85rem;
+            padding: 0.4rem 0.75rem;
+            cursor: pointer;
+            outline: none;
+        }
+        .option-select option { background: #1a0f2e; }
+
+        /* === UNICORN === */
+        .unicorn-wrap {
+            font-size: 3rem;
+            text-align: center;
+            margin: 0.5rem 0;
+            line-height: 1;
+            cursor: default;
+            transition: transform 0.2s;
+        }
+        .unicorn-wrap:hover { transform: scale(1.2) rotate(5deg); }
+        .unicorn-dance { animation: dance 0.4s infinite alternate; }
+        @keyframes dance {
+            0% { transform: translateY(0) rotate(-3deg) scale(1); }
+            100% { transform: translateY(-10px) rotate(5deg) scale(1.1); }
+        }
+        .unicorn-glitch { animation: glitch 0.3s steps(2, jump-none) infinite; }
+        @keyframes glitch {
+            0% { transform: translate(2px, 0) skewX(-3deg); }
+            33% { transform: translate(-2px, 0) skewX(2deg); }
+            66% { transform: translate(0, -2px); }
+            100% { transform: translate(1px, 1px) skewX(-1deg); }
+        }
+
+        /* === HISTORY PANEL === */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 0.25rem;
+        }
+
+        .history-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            transition: background 0.15s;
+        }
+        .history-item:hover { background: rgba(255,255,255,0.07); }
+
+        .history-name {
+            font-weight: 700;
+            font-size: 1rem;
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .history-meta {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.55rem;
+            color: var(--muted);
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 0.35rem;
+        }
+
+        .mini-btn {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.7rem;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .mini-btn:hover { background: rgba(255,255,255,0.12); }
+
+        /* === BATTLE PANEL === */
+        .battle-arena {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1rem;
+            align-items: center;
+            margin: 1rem 0;
+        }
+
+        .battle-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .battle-card:hover { transform: scale(1.03); border-color: var(--accent); }
+        .battle-card.winner {
+            border-color: var(--accent3);
+            box-shadow: 0 0 25px rgba(255,225,0,0.3);
+            background: rgba(255,225,0,0.06);
+        }
+        .battle-card.loser { opacity: 0.4; }
+
+        .battle-name {
+            font-size: 1.3rem;
+            font-weight: 800;
+            word-break: break-word;
+        }
+
+        .vs-badge {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--danger);
+            text-align: center;
+        }
+
+        .battle-score {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--muted);
+            margin-top: 0.5rem;
+            letter-spacing: 0.1em;
+        }
+
+        /* === ROAST PANEL === */
+        .roast-box {
+            background: rgba(255,58,58,0.05);
+            border: 1px solid rgba(255,58,58,0.2);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.7;
+            color: #ffaaaa;
+            min-height: 100px;
+            text-align: center;
+        }
+
+        /* === PITCH DECK PANEL === */
+        .pitch-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.9;
+            white-space: pre-wrap;
+            color: var(--accent2);
+        }
+
+        /* === SECTION TITLES === */
+        .section-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--muted);
+            margin: 1.5rem 0 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* === CHAOS MODE === */
+        .chaos-active #startupName {
+            animation: chaostext 0.1s infinite;
+        }
+        @keyframes chaostext {
+            0% { color: #ff2fff; text-shadow: 2px 0 0 #00ffcc; }
+            25% { color: #ffe100; text-shadow: -2px 0 0 #ff2fff; }
+            50% { color: #00ffcc; text-shadow: 0 2px 0 #ffe100; }
+            75% { color: #ff3a3a; text-shadow: 0 -2px 0 #ff2fff; }
+        }
+
+        /* === EMPTY STATES === */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--muted);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+        }
+
+        /* === SCROLLBAR === */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 2px; }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 600px) {
+            #startupName { font-size: 1.6rem; }
+            .battle-arena { grid-template-columns: 1fr; }
+            .vs-badge { transform: rotate(90deg); }
+            .btn { font-size: 0.85rem; padding: 0.65rem 1.2rem; }
+        }
+
+        /* === FOOTER === */
+        .footer {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 2rem;
+            letter-spacing: 0.08em;
+        }
+
+        /* === ANIM HELPERS === */
+        .flash { animation: flash 0.3s ease; }
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .slide-in { animation: slidein 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes slidein {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* === COUNTER === */
+        .generated-counter {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--muted);
+            text-align: center;
+            margin-top: -0.5rem;
+            margin-bottom: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+<div class="bg-noise"></div>
+
+<div class="container">
+    <div class="header">
+        <div class="unicorn-wrap" id="unicornEmoji">🦄</div>
+        <h1>VIBECRAFT ULTRA</h1>
+        <div class="tagline">Series Z • Disrupting disruption since 2019 • Emotional burn rate: critical</div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('generator')">⚡ Generate</button>
+        <button class="tab" onclick="switchTab('battle')">⚔️ Battle</button>
+        <button class="tab" onclick="switchTab('roast')">🔥 Roast</button>
+        <button class="tab" onclick="switchTab('pitch')">📊 Pitch Deck</button>
+        <button class="tab" onclick="switchTab('history')">📜 History</button>
+    </div>
+
+    <!-- ===== GENERATOR PANEL ===== -->
+    <div class="panel active" id="panel-generator">
+
+        <div class="options-grid">
+            <div class="option-card">
+                <div class="option-label">🏭 Industry Vibe</div>
+                <select class="option-select" id="industryFilter">
+                    <option value="all">🌀 Full Chaos</option>
+                    <option value="ai">🤖 AI/ML Bro</option>
+                    <option value="crypto">🪙 Crypto Degen</option>
+                    <option value="saas">📦 SaaS Zombie</option>
+                    <option value="bio">🧬 BioHack</option>
+                    <option value="climate">🌱 GreenWash</option>
+                    <option value="fintech">💸 FinTech Cope</option>
+                </select>
+            </div>
+            <div class="option-card">
+                <div class="option-label">🌡️ Chaos Level</div>
+                <select class="option-select" id="chaosLevel">
+                    <option value="mild">🧘 Mild (VC-safe)</option>
+                    <option value="medium" selected>🌶️ Medium (YC-ready)</option>
+                    <option value="extreme">🔥 Extreme (unhinged)</option>
+                    <option value="cosmic">🌌 Cosmic (unspeakable)</option>
+                </select>
+            </div>
+            <div class="option-card">
+                <div class="option-label">🎭 Style</div>
+                <select class="option-select" id="nameStyle">
+                    <option value="random">🎲 Random</option>
+                    <option value="compound">🔗 Compound</option>
+                    <option value="verb">⚡ Verb-First</option>
+                    <option value="acronym">🔤 Fake Acronym</option>
+                    <option value="latin">🏛️ Fake Latin</option>
+                    <option value="number">🔢 Number Soup</option>
+                </select>
+            </div>
+            <div class="option-card">
+                <div class="option-label">🎨 Suffix Vibe</div>
+                <select class="option-select" id="suffixVibe">
+                    <option value="random">🎲 Anything</option>
+                    <option value="tech">💻 Tech (.io, .ai)</option>
+                    <option value="corporate">🏢 Corporate</option>
+                    <option value="agile">🏃 Agile Cringe</option>
+                    <option value="web3">⛓️ Web3 Energy</option>
+                    <option value="none">🚫 No Suffix</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="name-box" id="nameBox">
+            <div id="startupName">⚡ press GENERATE</div>
+            <div class="name-tier" id="nameTier" style="display:none"></div>
+            <div id="valuationBadge"></div>
+        </div>
+
+        <div class="stats-row" id="statsRow" style="display:none">
+            <div class="stat-chip" id="stat-marketability">📈 Marketability: --</div>
+            <div class="stat-chip" id="stat-vcbait">💰 VC Bait: --</div>
+            <div class="stat-chip" id="stat-cringe">😬 Cringe Index: --</div>
+            <div class="stat-chip" id="stat-domain">🌐 Domain: --</div>
+            <div class="stat-chip" id="stat-trademark">™️ Trademarkable: --</div>
+        </div>
+
+        <div class="generated-counter" id="generatedCounter" style="display:none">
+            Generated: <span id="genCount">0</span> names this session
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" id="generateBtn">🌀 GENERATE</button>
+            <button class="btn btn-chaos" id="chaosBtn">💥 CHAOS x5</button>
+            <button class="btn btn-save" id="saveBtn">❤️ Save</button>
+            <button class="btn btn-linkedin" id="linkedinBtn">💼 LinkedIn</button>
+            <button class="btn btn-tweet" id="tweetBtn">𝕏 Tweet</button>
+            <button class="btn btn-dark" id="darkModeBtn">🌙 Dark Founder</button>
+        </div>
+    </div>
+
+    <!-- ===== BATTLE PANEL ===== -->
+    <div class="panel" id="panel-battle">
+        <p style="text-align:center; color: var(--muted); font-family: 'Space Mono', monospace; font-size:0.75rem; margin-bottom:1rem;">
+            Two names enter. One name leaves. You decide.
+        </p>
+
+        <div class="battle-arena">
+            <div class="battle-card" id="battleLeft" onclick="pickWinner('left')">
+                <div class="battle-name" id="battleNameLeft">???</div>
+                <div class="battle-score" id="battleTierLeft"></div>
+                <div style="margin-top:0.5rem; font-size:0.65rem; color: var(--muted); font-family:'Space Mono',monospace;">CLICK TO VOTE</div>
+            </div>
+
+            <div>
+                <div class="vs-badge">VS</div>
+                <div style="text-align:center; margin-top:1rem">
+                    <button class="btn btn-battle" onclick="newBattle()" style="font-size:0.8rem; padding:0.6rem 1rem;">⚔️ New Battle</button>
+                </div>
+                <div style="font-family:'Space Mono',monospace; font-size:0.55rem; color:var(--muted); text-align:center; margin-top:0.75rem;">
+                    Round <span id="battleRound">0</span>
+                </div>
+            </div>
+
+            <div class="battle-card" id="battleRight" onclick="pickWinner('right')">
+                <div class="battle-name" id="battleNameRight">???</div>
+                <div class="battle-score" id="battleTierRight"></div>
+                <div style="margin-top:0.5rem; font-size:0.65rem; color: var(--muted); font-family:'Space Mono',monospace;">CLICK TO VOTE</div>
+            </div>
+        </div>
+
+        <div class="section-title">🏆 Battle Record</div>
+        <div id="battleRecord" class="history-list">
+            <div class="empty-state">No battles yet. Fight!</div>
+        </div>
+    </div>
+
+    <!-- ===== ROAST PANEL ===== -->
+    <div class="panel" id="panel-roast">
+        <p style="text-align:center; color: var(--muted); font-family: 'Space Mono', monospace; font-size:0.75rem; margin-bottom:1rem;">
+            AI-powered startup roasts. Brutally honest. Therapeutically useless.
+        </p>
+
+        <div style="text-align:center; margin-bottom:1rem;">
+            <input type="text" id="roastInput" placeholder="Enter a startup name to roast..."
+                style="background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:1rem;
+                       color:var(--text); font-family:'Syne',sans-serif; font-size:1rem; padding:0.75rem 1.25rem;
+                       width:100%; max-width:400px; outline:none; text-align:center;">
+        </div>
+
+        <div style="text-align:center; margin-bottom:1rem; display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap;">
+            <button class="btn btn-chaos" onclick="roastName()">🔥 ROAST IT</button>
+            <button class="btn btn-dark" onclick="roastCurrentName()">🎯 Roast Current Name</button>
+        </div>
+
+        <div class="roast-box" id="roastBox">
+            Enter a startup name above and prepare for emotional damage.
+        </div>
+
+        <div class="section-title">🔥 Roast Hall of Shame</div>
+        <div id="roastHistory" class="history-list">
+            <div class="empty-state">No victims yet.</div>
+        </div>
+    </div>
+
+    <!-- ===== PITCH DECK PANEL ===== -->
+    <div class="panel" id="panel-pitch">
+        <p style="text-align:center; color: var(--muted); font-family: 'Space Mono', monospace; font-size:0.75rem; margin-bottom:1rem;">
+            Generate a full Series A pitch deck outline. Investors not included.
+        </p>
+
+        <div style="text-align:center; margin-bottom:1rem; display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="generatePitch()">📊 Generate Pitch Deck</button>
+            <button class="btn btn-save" onclick="copyPitch()">📋 Copy All</button>
+        </div>
+
+        <div class="pitch-box" id="pitchBox">
+            Click "Generate Pitch Deck" to create your Series A deck.
+(Current name will be used — generate one first!)
+        </div>
+    </div>
+
+    <!-- ===== HISTORY PANEL ===== -->
+    <div class="panel" id="panel-history">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+            <div style="font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--muted);">
+                <span id="savedCount">0</span> names saved
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+                <button class="btn btn-dark" onclick="exportHistory()" style="font-size:0.75rem; padding:0.4rem 0.9rem;">📤 Export</button>
+                <button class="btn btn-dark" onclick="clearHistory()" style="font-size:0.75rem; padding:0.4rem 0.9rem; color:var(--danger);">🗑️ Clear All</button>
+            </div>
+        </div>
+        <div class="history-list" id="historyList">
+            <div class="empty-state">No saved names yet.<br>Generate some and hit ❤️ Save!</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        🦄 VIBECRAFT ULTRA v2.0 · Series Z · Disrupting disruption · Pre-revenue · Pre-product · Pre-idea
+        <br>Technical debt: immeasurable · Documentation: a myth · Roadmap: vibes
+    </div>
+</div>
+
+<script>
+// =====================================================
+//  THE MEGA FALOPA DICTIONARY — ULTRA EDITION
+// =====================================================
+
+const COLORS = [
+    "Red","Blue","Green","Purple","Dark","Light","Soft","Hard","Liquid","Solid","Wild","Mild",
+    "Deep","Shallow","Feral","Tame","Nimbus","Cumulus","Prism","Neon","Polar","Solar","Echo",
+    "Swift","Blind","Stealth","Quantum","Phantom","Holographic","Vaporwave","Synthwave","Cyber",
+    "Crypto","Decentralized","Distributed","Atomic","Subatomic","Ethereal","Temporal","Spatial",
+    "Multidimensional","Psychedelic","Acid","Chaotic","Lawful","Neutral","Void","Null","Undefined",
+    "NaN","Infinity","Abstract","Concrete","Plastic","Elastic","Magnetic","Gravitational",
+    "Entangled","Mercurial","Venusian","Martian","Jovian","Saturnine","Uranian","Neptunian",
+    "Plutonian","Lunar","Nostalgic","Hopeful","Desperate","Caffeinated","Insomniac","Hungover",
+    "Motivated","Burnout","Impostor","Synergy","Disruptive","Innovative","BlueSky","Greenwashing",
+    // NEW
+    "Hyper","Ultra","Mega","Turbo","Super","Omni","Meta","Para","Trans","Neo","Proto","Pseudo",
+    "Quasi","Semi","Crypto","Nano","Pico","Femto","Atto","Zetta","Yotta","Giga","Tera","Peta",
+    "Exa","Bruh","Sigma","Chad","Based","Cringe","Goated","Frfr","Lowkey","Highkey","Slay",
+    "Bussin","Ratio","Rizz","Delulu","Vibey","Snatched","Drip","Flex","Clout","Ghost","Shade",
+    "Cap","No-cap","Mid","Fire","Ice","Gucci","Lit","Sic","Woke","Based","Cooked","Toast",
+    "Glazed","Frosted","Toasted","Roasted","Smoked","Charred","Scorched","Blazing","Raging",
+    "Surging","Plunging","Mooning","Rugging","Dumping","Pumping","Bridging","Staking","Minting",
+    "Flipping","Grinding","Hustling","Scaling","Pivoting","Failing","Recovering","Surviving"
+];
+
+const ANIMALS = [
+    "Panda","Tiger","Eagle","Fox","Wolf","Hawk","Shark","Lion","Bear","Koala","Sloth","Meerkat",
+    "Octopus","Platypus","Narwhal","Falcon","Raven","Viper","Moose","Pigeon","Ferret","Badger",
+    "Alpaca","Capybara","Dragon","Phoenix","Griffin","Cerberus","Hydra","Minotaur","Centaur",
+    "Pegasus","Unicorn","Chimera","Basilisk","Leviathan","Behemoth","Kraken","Sphinx","Yeti",
+    "Bigfoot","LochNess","Djinn","Valkyrie","Fairy","Goblin","Troll","Ogre","Axolotl","Quokka",
+    "DikDik","Okapi","Tapir","Manatee","Dugong","Capuchin","Marmoset","Tamarin","SlowLoris",
+    "Tarsier","AyeAye","Fossa","Civet","TRex","Triceratops","Velociraptor","Pterodactyl",
+    "Mammoth","Sabertooth","Dodo","Megalodon","CryptoSloth","NFTApe","MoonWolf","DiamondHands",
+    "Whale","Shrimp","Crab","Squid","Lobster","Plankton","Tardigrade","Blobfish","Mantis",
+    // NEW
+    "Shrimp","Plankton","Amoeba","Mitochondria","Electron","Proton","Neutrino","Quark","Boson",
+    "Higgs","Gluon","Muon","Tau","Lepton","Meson","Baryon","Fermion","Graviton","Tachyon",
+    "Wormhole","Singularity","Hawking","Turing","Boole","Euler","Gauss","Riemann","Cantor",
+    "Godel","Fermat","Pascal","Leibniz","Newton","Tesla","Edison","Faraday","Maxwell","Heisenberg",
+    "Schrödinger","Dirac","Feynman","Oppenheimer","Curie","Darwin","Mendel","Pasteur","Fleming",
+    "Crick","Watson","Rosalind","Venter","Musk","Bezos","Thiel","Andreessen","Graham","Zuck",
+    "Snail","Slug","Worm","Grub","Larva","Pupa","Chrysalis","Moth","Aphid","Thrip","Mite",
+    "Tick","Flea","Louse","Weevil","Termite","Roach","Cricket","Locust","Mantid","Earwig"
+];
+
+const VERBS = [
+    "Launch","Scale","Pivot","Disrupt","Accelerate","Optimize","Leverage","Synergize","Incentivize",
+    "Democratize","Monetize","Gamify","Virtualize","Tokenize","Decentralize","Automate","Augment",
+    "Deploy","Iterate","Validate","Ideate","Prototype","Stress-test","Hack","Bootstrap","Grind",
+    "Hustle","Vibe","Ship","Crush","Obliterate","Transcend","Ascend","Dominate","Conquer","Capture",
+    "Unlock","Unleash","Activate","Trigger","Enable","Empower","Transform","Reimagine","Reinvent",
+    "Recalibrate","Realign","Reframe","Rethink","Rebrand","Revamp","Reshape","Reconstruct","Rebuild"
+];
+
+const LATIN_PREFIXES = [
+    "Aequi","Accel","Agilis","Apex","Aqua","Aura","Avia","Axia","Azura",
+    "Bene","Brevix","Calcul","Celer","Centri","Chrono","Cogni","Continuum","Convergix",
+    "Dext","Digiti","Dyna","Empir","Excelsis","Facil","Fidelis","Fluxus","Fortis",
+    "Genio","Glorix","Graviton","Helix","Ignis","Illumin","Impactus","Influx","Integra",
+    "Kinesis","Latera","Lenis","Levit","Libera","Lumen","Magnit","Mantis","Matrix",
+    "Maxim","Medius","Mentor","Mobilis","Momentum","Nexus","Norma","Nova","Novix",
+    "Omnix","Optima","Orbit","Pax","Proxim","Quantix","Rapid","Ratio","Senti",
+    "Solis","Spectral","Strata","Summit","Synth","Tactis","Telum","Tempus","Terra",
+    "Triton","Ultima","Unitas","Valide","Vector","Veloxi","Ventis","Vertex","Vestis",
+    "Vitae","Volt","Vortex","Zelum","Zenith","Zephyr"
+];
+
+const LATIN_SUFFIXES = [
+    "ix","us","um","a","ae","i","is","os","as","ex","yx","ax","ox",
+    "ion","ium","ius","ia","ias","ica","ico","ics","ine","ine","ini",
+    "ant","ent","ont","unt","yst","ast","ist","ost","ust",
+    "alis","aris","atus","itus","ulus","icle","acle","ocle","ucle"
+];
+
+const FAKE_ACRONYMS = [
+    "VIBE", "HUSTLE", "GRIND", "ALPHA", "SIGMA", "OMEGA", "DELTA", "THETA", "GAMMA",
+    "APEX", "ZENITH", "NEXUS", "FLUX", "NOVA", "AURA", "SYNC", "CORE", "PULSE",
+    "SPARK", "FORGE", "CRAFT", "BUILD", "SHIP", "SCALE", "GROW", "BOOST", "SURGE",
+    "DRIVE", "PIVOT", "SHIFT", "LIFT", "LEAP", "DASH", "RUSH", "BLITZ", "STORM",
+    "WAVE", "TIDE", "FLOW", "GLOW", "BEAM", "RAY", "ARC", "LINK", "CHAIN", "STACK",
+    "LAYER", "NODE", "MESH", "GRID", "PIPE", "WIRE", "LOOP", "HOOK", "PLUG", "PORT"
+];
+
+const ACRONYM_MEANINGS = [
+    "Validated Intelligent Business Engine",
+    "Holistic Universal Strategic Technology Layer Enterprise",
+    "Growth Revenue Intelligence Network Distribution",
+    "Agile Leadership Platform Hyper Accelerator",
+    "Scalable Integrated Growth Matrix Accelerator",
+    "Omnichannel Modular Ecosystem Growth Accelerator",
+    "Disruption Engine for Leveraging Tomorrow Accelerating",
+    "Transformative Horizontal Ecosystem Technology Accelerator",
+    "Growth Agile Measurement Matrix Accelerator",
+    "Artificial Powered Execution Xenith System",
+    "Zero-emission Emotional Networked Integrated Technology Hyper",
+    "Next-gen Ecosystem eXponential Unified Systems",
+    "Future Leveraged Unified eXperience",
+    "Novel Operational Value Accelerator",
+    "Augmented Unified Realtime Accelerator",
+    "Synchronized Your Network Channels",
+    "Converged Omni-channel Revenue Engine",
+    "Predictive Universal Learning System Engine"
+];
+
+const NUMBERS_SOUP = [
+    "3", "7", "13", "42", "69", "420", "1337", "0x",
+    "v2", "v3", "2.0", "3.0", "4.20", "365", "24x7",
+    "One", "Uno", "Primo", "Alpha", "Zero", "Null", "∞"
+];
+
+const SUFFIXES_TECH = ["io","ai","co","app","ly","ify","hub","hq","api","dev","xyz","wtf","lol"];
+const SUFFIXES_CORP = ["lytics","ware","soft","tech","sys","corp","group","global","solutions","ventures","partners","capital","labs","studio","works","forge","craft","space","base"];
+const SUFFIXES_AGILE = ["sprint","ceremony","retro","standup","grooming","planning","velocity","capacity","story","epic","roadmap","backlog","burndown","scrum","kanban","agile","lean","mvp","poc","spike"];
+const SUFFIXES_WEB3 = ["chain","token","coin","protocol","ledger","consensus","stake","forge","mint","swap","bridge","oracle","dao","defi","nft","web3","crypto","block","hash","wallet","vault"];
+const SUFFIXES_AI = ["GPT","LLM","Transformer","Diffuser","Generator","Discriminator","Encoder","Decoder","Attention","Embedding","Vector","Latent","Neural","Synapse","Cortex","Axon","Dendrite"];
+
+const VALUE_PHRASES = [
+    "$420M valuation pre-revenue","$69M seed round (friends & family)","Unicorn in egg stage",
+    "Revenue: vibes & memes","Burn rate: 1 asado per sprint","Series F (of falopa)",
+    "Valued at 3 pizzas and a beer","EBITDA: hopium","ARR: imaginary (Annual Recurring Reverie)",
+    "Post-money: dreams","Valuation: yes","Profitability: someday",
+    "Runway: until the falopa runs out","Unit economics: don't ask",
+    "Customer acquisition: aunts & uncles","Churn rate: 100% (we're all leaving)",
+    "Net retention: negative","Gross margin: imaginary","Market cap: 3 brain cells",
+    "Liquidity event: winning the lottery","Exit strategy: getting bought by Elon",
+    "Due diligence: trust me bro","Cap table: a disaster","Vesting: 4 years of suffering",
+    "Board meeting: after the game","Advisory board: the bar crew",
+    "Technical debt: your mom's mortgage","Tech stack: pure smoke",
+    "Code quality: pray it works","Documentation: legend says it exists",
+    // NEW
+    "MRR: Monthly Recurring Regret","TAM: Totally Abstract Market","SAM: Somewhat Abstract Market",
+    "SOM: Slightly Obtainable Maybe","Moat: a very small puddle","PMF: 'my mom uses it'",
+    "NPS: Negative Predictably Spiral","CAC: Coffee And Crying","LTV: Long Time to Validate",
+    "ARPU: Almost Revenue Per User","GMV: Glorified Money Velocity","OKR: Obviously Killed Results",
+    "KPI: Key Pretending Indicators","ROI: Regret On Investment","FOMO: Fear Of Missing Out on VC",
+    "YOLO: Your Only Leverage Offer","HODL: Hoping Our Deck Lands","FUD: Fully Undefined Direction",
+    "Seed: family, friends & fools","Pre-seed: just delusion","Series A: someone believed the deck"
+];
+
+const INDUSTRIES = {
+    all: { colors: COLORS, suffix_pool: [...SUFFIXES_TECH, ...SUFFIXES_CORP, ...SUFFIXES_AGILE, ...SUFFIXES_WEB3, ...SUFFIXES_AI] },
+    ai: { colors: ["Neural","Latent","Vector","Embedding","Diffuse","Generative","Synthetic","Cognitive","Intelligent","Autonomous","Adaptive","Predictive","Recursive","Iterative","Stochastic","Deterministic","Probabilistic","Bayesian","Frequentist","Deep","Shallow","Wide","Dense","Sparse","Attentive","Transforming","Encoding"], suffix_pool: SUFFIXES_AI },
+    crypto: { colors: ["Diamond","Moon","Rug","Pump","Dump","Whale","Degen","Ape","Pepe","Wojak","Gwei","Wei","Satoshi","Lambo","NGMI","WAGMI","GM","GN","Ser","Fren","Chad","Degen","Shill","Fud","Fomo"], suffix_pool: SUFFIXES_WEB3 },
+    saas: { colors: ["Integrated","Scalable","Enterprise","B2B","Omnichannel","Vertical","Horizontal","Full-stack","Cloud-native","Serverless","Headless","Composable","Modular","Platform","Layer","Tier"], suffix_pool: SUFFIXES_CORP },
+    bio: { colors: ["Genomic","Proteomic","Metabolomic","Transcriptomic","Epigenomic","Cellular","Molecular","Genetic","Synthetic","Organic","Inorganic","Enzymatic","Catalytic","Bioreactive","Nanoscopic","Microscopic","Macroscopic"], suffix_pool: ["bio","life","health","med","pharma","gene","cell","lab","science","research","therapeutics","diagnostics","genomics","proteomics","metabolomics"] },
+    climate: { colors: ["Carbon","Net-zero","Circular","Regenerative","Sustainable","Green","Clean","Renewable","Decarbonized","Sequestered","Offset","Neutral","Positive","Verified","Certified","Verified","Transparent"], suffix_pool: ["earth","green","eco","solar","wind","tide","wave","geo","terra","nature","planet","world","global","climate","impact","future"] },
+    fintech: { colors: ["Open","Embedded","Invisible","Frictionless","Real-time","Cross-border","Decentralized","Permissioned","Regulated","Compliant","Licensed","Chartered","Insured","Audited","Transparent"], suffix_pool: ["pay","bank","wallet","card","credit","debit","transfer","capital","fund","invest","trade","lend","borrow","save","earn"] }
+};
+
+const ROASTS = [
+    (n) => `"${n}" sounds like what happens when a VC's toddler names their LEGO set.`,
+    (n) => `I've seen better names on a 2003 Flash game about sorting vegetables. "${n}" is not it.`,
+    (n) => `"${n}" — the startup name equivalent of showing up to a job interview in pajamas and calling it "authentic."`,
+    (n) => `If "${n}" raised a Series A, God is dead and we killed him.`,
+    (n) => `"${n}" has the energy of a 47-slide deck with no revenue slide. Bold.`,
+    (n) => `Congratulations, "${n}" sounds exactly like a company that will pivot 7 times before becoming a newsletter.`,
+    (n) => `"${n}": for when you want to disrupt an industry but can't decide which one.`,
+    (n) => `The domain "${n}.io" is probably taken by a parked page since 2016. The metaphor is perfect.`,
+    (n) => `"${n}" — I rate it 3 out of 10 on the "will survive due diligence" scale. The other 7 points require a product.`,
+    (n) => `Fun fact: "${n}" fails the "say it out loud at Thanksgiving dinner without dying inside" test.`,
+    (n) => `"${n}" has the vibe of a company founded in a WeWork by three people who all went to the same coding bootcamp.`,
+    (n) => `I asked 10 investors about "${n}". Nine said "interesting," one said "send the deck." None invested.`,
+    (n) => `"${n}" — the startup name you pick when you've burned through the thesaurus AND the dictionary.`,
+    (n) => `Legend has it "${n}" was pitched to YC. They laughed. Not with you. At you.`,
+    (n) => `"${n}" sounds like an AI hallucinated a company name while having a stroke. Which means it's actually perfect.`,
+    (n) => `I'd say "${n}" is ahead of its time, but honestly it's more beside the point.`,
+    (n) => `"${n}" — your elevator pitch is: "it's like Uber but for [X] and also there's an AI component."`,
+    (n) => `The brand identity of "${n}" is: Comic Sans in a trench coat pretending to be Helvetica.`,
+    (n) => `"${n}" will appear in a TechCrunch article titled "Another Day, Another Startup Nobody Asked For."`,
+    (n) => `Somewhere, a YC rejection email is being drafted with "${n}" in the subject line. Multiple YC rejection emails.`,
+];
+
+const PITCH_TEMPLATES = [
+    (n, industry) => `
+╔══════════════════════════════════════════════════╗
+║         ${n.toUpperCase().padEnd(48)}║
+║         SERIES A PITCH DECK                      ║
+╚══════════════════════════════════════════════════╝
+
+SLIDE 1 — THE PROBLEM
+"Nobody in the ${industry} space has disrupted the 
+disruption. We are here to change everything forever 
+indefinitely."
+
+SLIDE 2 — THE SOLUTION
+${n} is an AI-powered, blockchain-enabled, 
+vertically-integrated, horizontally-scalable, 
+omnichannel platform for the modern era.
+(We have slides. Trust the slides.)
+
+SLIDE 3 — MARKET SIZE
+TAM: $4.2 Trillion (we counted everything)
+SAM: $420 Billion (we narrowed it down a bit)
+SOM: $69 Million (realistically, maybe $12)
+
+SLIDE 4 — TRACTION
+• 3 beta users (2 are founders' moms)
+• 847 Twitter followers
+• Featured in our own blog post
+• "Viral" on LinkedIn (6 likes)
+
+SLIDE 5 — BUSINESS MODEL
+"We will figure it out post Series A."
+Alternatively: ads, subscriptions, data sales, 
+NFTs, consulting, merch, sponsored content, 
+speaking fees, and vibes.
+
+SLIDE 6 — THE TEAM
+• CEO: Dropped out of 2 universities
+• CTO: "knows Python" (confirmed)
+• CPO: LinkedIn influencer, 40K followers
+• Advisor: Some guy from Google (he's met us once)
+
+SLIDE 7 — FINANCIALS
+Revenue: $0 (pre-revenue = no ceiling)
+Burn Rate: $85,000/month (WeWork + kombucha)
+Runway: 6 months (currently fundraising)
+Path to Profitability: Q4 2027 (optimistic)
+
+SLIDE 8 — THE ASK
+Raising $5M at $50M pre-money valuation.
+"Based on comparable transactions and vibes."
+
+SLIDE 9 — THE VISION
+"In 10 years, ${n} will be the operating 
+system for human civilization."
+
+SLIDE 10 — THANK YOU
+Please invest. We believe in this so much.
+Our personal savings are involved.
+
+[contact: founder@${n.toLowerCase().replace(/\s/g,'')}.io]
+[deck password: password123]
+`,
+];
+
+const RANDOM_EVENTS = [
+    "🚨 BREAKING: Series A just closed at $0 pre-money!",
+    "📢 UPDATE: Lead investor is 'thinking about it'",
+    "⚠️ ALERT: Technical co-founder just rage-quit",
+    "💀 RIP: Domain name was already taken (.wtf available)",
+    "🎉 MILESTONE: First user signed up (it's the CEO)",
+    "📉 NEWS: Runway extended to 6.5 months after cutting coffee",
+    "🔥 HOT: Featured in a Medium post nobody will read",
+    "💼 BREAKING: YC rejection received, reapplying as 'pivoted'",
+    "🌐 ALERT: LinkedIn post got 3 likes. Going viral.",
+    "🤖 UPDATE: AI component added to deck. Valuation doubled.",
+    "🎯 NEWS: Pivot #4 underway. New market: everything.",
+    "💸 BREAKING: Angels interested. Angels = mom's friends.",
+];
+
+// =====================================================
+//  STATE
+// =====================================================
+let currentName = null;
+let currentTier = null;
+let savedHistory = JSON.parse(localStorage.getItem('vibecraft_history') || '[]');
+let generatedCount = 0;
+let isDarkFounder = false;
+let isChaosMode = false;
+let battleRound = 0;
+let battleNames = { left: null, right: null };
+let battleRecord = [];
+let roastHistory = [];
+let chaosInterval = null;
+let randomEventInterval = null;
+
+// =====================================================
+//  UTILITY
+// =====================================================
+function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function randFloat(min, max) { return (Math.random() * (max - min) + min).toFixed(1); }
+function pct() { return randInt(1, 100) + '%'; }
+
+function getIndustryData() {
+    const filter = document.getElementById('industryFilter').value;
+    return INDUSTRIES[filter] || INDUSTRIES.all;
+}
+
+function getSuffixPool() {
+    const vibe = document.getElementById('suffixVibe').value;
+    if (vibe === 'tech') return SUFFIXES_TECH;
+    if (vibe === 'corporate') return SUFFIXES_CORP;
+    if (vibe === 'agile') return SUFFIXES_AGILE;
+    if (vibe === 'web3') return SUFFIXES_WEB3;
+    if (vibe === 'none') return [''];
+    const industry = getIndustryData();
+    return industry.suffix_pool;
+}
+
+function assignTier(name) {
+    const len = name.length;
+    const r = Math.random();
+    if (r > 0.92) return 'S';
+    if (r > 0.75) return 'A';
+    if (r > 0.4) return 'B';
+    return 'C';
+}
+
+function generateStats(name) {
+    return {
+        marketability: randFloat(1, 10),
+        vcBait: randFloat(1, 10),
+        cringe: randFloat(1, 10),
+        domain: rand(['Available (.wtf)', 'Taken (.io)', 'Parked since 2014', 'Squatted ($12,000)', 'Free (.pizza!)', 'For sale ($420)', 'Unknown (check later)']),
+        trademark: rand(['Probably fine', 'Definitely taken', 'Check with lawyer', 'ABSOLUTELY NOT', 'Maybe?', 'Pending litigation', 'In a gray area'])
+    };
+}
+
+// =====================================================
+//  NAME GENERATORS
+// =====================================================
+function generateCompound() {
+    const ind = getIndustryData();
+    const sfx = getSuffixPool();
+    const col = rand([...ind.colors, ...COLORS]);
+    const ani = rand(ANIMALS);
+    const suffix = rand(sfx);
+
+    if (!suffix) return `${col} ${ani}`;
+    if (Math.random() > 0.5) return `${col}${ani}${suffix}`;
+    return `${col} ${ani} ${suffix}`;
+}
+
+function generateVerbFirst() {
+    const verb = rand(VERBS);
+    const ind = getIndustryData();
+    const sfx = getSuffixPool();
+    const col = rand([...ind.colors, ...COLORS]);
+    const suffix = rand(sfx);
+    if (!suffix) return `${verb} ${col}`;
+    if (Math.random() > 0.5) return `${verb}${col}${suffix}`;
+    return `${verb} ${col} ${suffix}`;
+}
+
+function generateAcronym() {
+    const acronym = rand(FAKE_ACRONYMS);
+    const meaning = rand(ACRONYM_MEANINGS);
+    window._lastAcronymMeaning = `${acronym} = ${meaning}`;
+    return acronym;
+}
+
+function generateLatin() {
+    const prefix = rand(LATIN_PREFIXES);
+    const suffix = rand(LATIN_SUFFIXES);
+    return `${prefix}${suffix}`;
+}
+
+function generateNumberSoup() {
+    const num = rand(NUMBERS_SOUP);
+    const word = rand([...COLORS, ...ANIMALS]);
+    const sfx = rand(getSuffixPool());
+    if (Math.random() > 0.5) return `${word}${num}`;
+    return `${num}${word}${sfx || ''}`;
+}
+
+function generateCosmic() {
+    // Utterly unhinged names
+    const cosmic = [
+        () => `${rand(VERBS)}${rand(LATIN_PREFIXES)}${rand(LATIN_SUFFIXES)} ${rand(SUFFIXES_WEB3)}`,
+        () => `${rand(NUMBERS_SOUP)}x ${rand(COLORS)} ${rand(ANIMALS)} ${rand(FAKE_ACRONYMS)}`,
+        () => `${rand(LATIN_PREFIXES)}${rand(ANIMALS).toLowerCase()} ${rand(NUMBERS_SOUP)}.${rand(SUFFIXES_TECH)}`,
+        () => `${rand(VERBS)}${rand(VERBS)}${rand(LATIN_SUFFIXES)}`,
+        () => `The ${rand(COLORS)} ${rand(ANIMALS)} ${rand(SUFFIXES_AI)} Experience`,
+        () => `${rand(FAKE_ACRONYMS)}.${rand(SUFFIXES_TECH)} by ${rand(LATIN_PREFIXES)}${rand(LATIN_SUFFIXES)}`,
+        () => `${rand(ANIMALS)} as a Service`,
+        () => `${rand(VERBS)} the ${rand(ANIMALS)}`,
+        () => `${rand(COLORS)} ${rand(COLORS)} ${rand(ANIMALS)}`,
+        () => `${rand(LATIN_PREFIXES)}${rand(LATIN_PREFIXES)}${rand(LATIN_SUFFIXES)}${rand(NUMBERS_SOUP)}`,
+    ];
+    return rand(cosmic)();
+}
+
+function generateName() {
+    window._lastAcronymMeaning = null;
+    const style = document.getElementById('nameStyle').value;
+    const chaos = document.getElementById('chaosLevel').value;
+
+    let name;
+    if (chaos === 'cosmic') {
+        name = generateCosmic();
+    } else if (style === 'random') {
+        const generators = [generateCompound, generateVerbFirst, generateLatin, generateNumberSoup];
+        if (chaos === 'extreme') generators.push(generateCosmic, generateCosmic);
+        name = rand(generators)();
+    } else if (style === 'compound') name = generateCompound();
+    else if (style === 'verb') name = generateVerbFirst();
+    else if (style === 'acronym') name = generateAcronym();
+    else if (style === 'latin') name = generateLatin();
+    else if (style === 'number') name = generateNumberSoup();
+    else name = generateCompound();
+
+    return name;
+}
+
+// =====================================================
+//  DISPLAY
+// =====================================================
+function displayName(name) {
+    currentName = name;
+    currentTier = assignTier(name);
+    const stats = generateStats(name);
+
+    const nameEl = document.getElementById('startupName');
+    const tierEl = document.getElementById('nameTier');
+    const valEl = document.getElementById('valuationBadge');
+    const statsRow = document.getElementById('statsRow');
+    const counter = document.getElementById('generatedCounter');
+
+    nameEl.style.opacity = '0';
+    setTimeout(() => {
+        nameEl.textContent = name;
+        nameEl.style.opacity = '1';
+
+        // Acronym meaning tooltip
+        if (window._lastAcronymMeaning) {
+            valEl.textContent = `📖 ${window._lastAcronymMeaning}`;
+        } else {
+            valEl.textContent = `✨ ${rand(VALUE_PHRASES)} ✨`;
+        }
+
+        // Tier badge
+        tierEl.className = `name-tier tier-${currentTier}`;
+        tierEl.textContent = `TIER ${currentTier}`;
+        tierEl.style.display = 'inline-block';
+
+        // Stats
+        document.getElementById('stat-marketability').textContent = `📈 Marketability: ${stats.marketability}/10`;
+        document.getElementById('stat-vcbait').textContent = `💰 VC Bait: ${stats.vcBait}/10`;
+        document.getElementById('stat-cringe').textContent = `😬 Cringe: ${stats.cringe}/10`;
+        document.getElementById('stat-domain').textContent = `🌐 ${stats.domain}`;
+        document.getElementById('stat-trademark').textContent = `™️ ${stats.trademark}`;
+        statsRow.style.display = 'flex';
+
+        // Counter
+        generatedCount++;
+        document.getElementById('genCount').textContent = generatedCount;
+        counter.style.display = 'block';
+
+    }, 80);
+
+    launchConfetti();
+    danceUnicorn();
+    maybeShowRandomEvent();
+}
+
+function danceUnicorn() {
+    const u = document.getElementById('unicornEmoji');
+    u.classList.remove('unicorn-dance', 'unicorn-glitch');
+    const chaos = document.getElementById('chaosLevel').value;
+    if (chaos === 'cosmic') {
+        u.classList.add('unicorn-glitch');
+        u.textContent = rand(['🦄','💀','👾','🤖','💥','🌀','⚡','🔥','💫','🌈']);
+    } else {
+        u.classList.add('unicorn-dance');
+        u.textContent = rand(['🦄','🦄','🦄','🦄','🚀','✨','💫','🌟']);
+    }
+    setTimeout(() => {
+        u.classList.remove('unicorn-dance', 'unicorn-glitch');
+        if (chaos !== 'cosmic') u.textContent = '🦄';
+    }, 700);
+}
+
+function launchConfetti() {
+    const chaos = document.getElementById('chaosLevel').value;
+    const count = chaos === 'extreme' ? 200 : chaos === 'cosmic' ? 400 : 120;
+    const tier = currentTier;
+    const colors = tier === 'S'
+        ? ['#ffd700','#ff8c00','#ffffff']
+        : tier === 'A'
+        ? ['#ff2fff','#8b00ff','#ffffff']
+        : ['#ec4899','#8b5cf6','#fde047','#ffffff'];
+
+    confetti({ particleCount: count, spread: 80, origin: { y: 0.6 }, startVelocity: 25, colors });
+
+    if (chaos === 'extreme' || chaos === 'cosmic') {
+        [0.2, 0.35, 0.5, 0.65, 0.8].forEach((x, i) => {
+            setTimeout(() => confetti({ particleCount: 60, spread: 120, origin: { y: 0.5, x }, startVelocity: 30, colors }), i * 100);
+        });
+    }
+}
+
+function maybeShowRandomEvent() {
+    if (Math.random() > 0.7) {
+        const event = rand(RANDOM_EVENTS);
+        const el = document.createElement('div');
+        el.style.cssText = `
+            position:fixed; bottom:20px; right:20px; z-index:999;
+            background:#1a0f2e; border:1px solid #ff2fff40; border-radius:1rem;
+            padding:1rem 1.25rem; font-family:'Space Mono',monospace; font-size:0.7rem;
+            color:#e0d0ff; max-width:280px; box-shadow:0 8px 25px rgba(0,0,0,0.5);
+            animation:slidein 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            line-height:1.5;
+        `;
+        el.textContent = event;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 4000);
+    }
+}
+
+// =====================================================
+//  GENERATE BUTTON
+// =====================================================
+function generateAndDisplay() {
+    displayName(generateName());
+}
+
+// Chaos x5
+function chaosX5() {
+    let count = 0;
+    const interval = setInterval(() => {
+        if (count >= 5) { clearInterval(interval); return; }
+        generateAndDisplay();
+        count++;
+    }, 350);
+}
+
+// =====================================================
+//  SAVE / HISTORY
+// =====================================================
+function saveName() {
+    if (!currentName) { alert('Generate a name first!'); return; }
+    const entry = {
+        name: currentName,
+        tier: currentTier,
+        valuation: rand(VALUE_PHRASES),
+        timestamp: new Date().toLocaleString(),
+        industry: document.getElementById('industryFilter').value,
+    };
+    savedHistory.unshift(entry);
+    if (savedHistory.length > 100) savedHistory.pop();
+    localStorage.setItem('vibecraft_history', JSON.stringify(savedHistory));
+    renderHistory();
+
+    confetti({ particleCount: 30, spread: 40, origin: { y: 0.9 }, colors: ['#00ffcc'] });
+    document.getElementById('saveBtn').textContent = '✅ Saved!';
+    setTimeout(() => document.getElementById('saveBtn').textContent = '❤️ Save', 1500);
+}
+
+function renderHistory() {
+    const list = document.getElementById('historyList');
+    const count = document.getElementById('savedCount');
+    count.textContent = savedHistory.length;
+
+    if (savedHistory.length === 0) {
+        list.innerHTML = '<div class="empty-state">No saved names yet.<br>Generate some and hit ❤️ Save!</div>';
+        return;
+    }
+    list.innerHTML = savedHistory.map((e, i) => `
+        <div class="history-item slide-in">
+            <div>
+                <div class="history-name">${e.name}</div>
+                <div class="history-meta">${e.tier ? `TIER ${e.tier} · ` : ''}${e.industry || ''} · ${e.timestamp}</div>
+            </div>
+            <div class="history-actions">
+                <button class="mini-btn" onclick="copyToClipboard('${e.name.replace(/'/g,"\\'")}')">📋</button>
+                <button class="mini-btn" onclick="loadFromHistory(${i})">⚡</button>
+                <button class="mini-btn" onclick="deleteFromHistory(${i})" style="color:var(--danger)">✕</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function loadFromHistory(i) {
+    const e = savedHistory[i];
+    currentName = e.name;
+    document.getElementById('startupName').textContent = e.name;
+    if (e.tier) {
+        const tierEl = document.getElementById('nameTier');
+        tierEl.className = `name-tier tier-${e.tier}`;
+        tierEl.textContent = `TIER ${e.tier}`;
+        tierEl.style.display = 'inline-block';
+    }
+    switchTab('generator');
+}
+
+function deleteFromHistory(i) {
+    savedHistory.splice(i, 1);
+    localStorage.setItem('vibecraft_history', JSON.stringify(savedHistory));
+    renderHistory();
+}
+
+function clearHistory() {
+    if (!confirm('Delete all saved names?')) return;
+    savedHistory = [];
+    localStorage.setItem('vibecraft_history', JSON.stringify(savedHistory));
+    renderHistory();
+}
+
+function exportHistory() {
+    const text = savedHistory.map(e => `${e.name} [${e.tier || '?'}] — ${e.timestamp}`).join('\n');
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'vibecraft-saved-names.txt'; a.click();
+    URL.revokeObjectURL(url);
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showToast('📋 Copied!');
+    }).catch(() => alert(text));
+}
+
+// =====================================================
+//  BATTLE MODE
+// =====================================================
+function newBattle() {
+    battleRound++;
+    battleNames.left = generateName();
+    battleNames.right = generateName();
+
+    document.getElementById('battleNameLeft').textContent = battleNames.left;
+    document.getElementById('battleNameRight').textContent = battleNames.right;
+    document.getElementById('battleTierLeft').textContent = '';
+    document.getElementById('battleTierRight').textContent = '';
+    document.getElementById('battleRound').textContent = battleRound;
+
+    const lc = document.getElementById('battleLeft');
+    const rc = document.getElementById('battleRight');
+    lc.classList.remove('winner', 'loser');
+    rc.classList.remove('winner', 'loser');
+}
+
+function pickWinner(side) {
+    const winner = battleNames[side];
+    const loser = battleNames[side === 'left' ? 'right' : 'left'];
+    if (!winner) return;
+
+    const lc = document.getElementById('battleLeft');
+    const rc = document.getElementById('battleRight');
+    if (side === 'left') { lc.classList.add('winner'); rc.classList.add('loser'); }
+    else { rc.classList.add('winner'); lc.classList.add('loser'); }
+
+    document.getElementById(`battleTier${side === 'left' ? 'Left' : 'Right'}`).textContent = '🏆 WINNER';
+    document.getElementById(`battleTier${side === 'left' ? 'Right' : 'Left'}`).textContent = '💀 ELIMINATED';
+
+    battleRecord.unshift({ winner, loser, round: battleRound });
+    renderBattleRecord();
+
+    confetti({ particleCount: 80, spread: 60, origin: { y: 0.5 }, colors: ['#ffd700','#ff8c00'] });
+}
+
+function renderBattleRecord() {
+    const el = document.getElementById('battleRecord');
+    if (battleRecord.length === 0) {
+        el.innerHTML = '<div class="empty-state">No battles yet. Fight!</div>';
+        return;
+    }
+    el.innerHTML = battleRecord.map(b => `
+        <div class="history-item">
+            <div style="flex:1">
+                <span style="color:#ffd700; font-weight:700">🏆 ${b.winner}</span>
+                <span style="color:var(--muted); font-family:'Space Mono',monospace; font-size:0.65rem"> vs </span>
+                <span style="color:var(--muted); text-decoration:line-through">${b.loser}</span>
+            </div>
+            <div class="history-meta">Round ${b.round}</div>
+        </div>
+    `).join('');
+}
+
+// =====================================================
+//  ROAST
+// =====================================================
+function roastName() {
+    const input = document.getElementById('roastInput').value.trim();
+    if (!input) { alert('Enter a startup name to roast!'); return; }
+    performRoast(input);
+}
+
+function roastCurrentName() {
+    if (!currentName || currentName === '⚡ press GENERATE') {
+        alert('Generate a startup name first!');
+        return;
+    }
+    document.getElementById('roastInput').value = currentName;
+    performRoast(currentName);
+}
+
+function performRoast(name) {
+    const roastEl = document.getElementById('roastBox');
+    const roastFn = rand(ROASTS);
+    const roast = roastFn(name);
+
+    roastEl.style.opacity = '0';
+    setTimeout(() => {
+        roastEl.textContent = roast;
+        roastEl.style.opacity = '1';
+    }, 100);
+
+    roastHistory.unshift({ name, roast, time: new Date().toLocaleTimeString() });
+    renderRoastHistory();
+}
+
+function renderRoastHistory() {
+    const el = document.getElementById('roastHistory');
+    if (roastHistory.length === 0) {
+        el.innerHTML = '<div class="empty-state">No victims yet.</div>';
+        return;
+    }
+    el.innerHTML = roastHistory.slice(0, 10).map(r => `
+        <div class="history-item">
+            <div style="flex:1">
+                <div style="font-weight:700; margin-bottom:0.25rem">${r.name}</div>
+                <div style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--muted); line-height:1.5">${r.roast}</div>
+            </div>
+            <div class="history-meta">${r.time}</div>
+        </div>
+    `).join('');
+}
+
+// =====================================================
+//  PITCH DECK
+// =====================================================
+function generatePitch() {
+    const name = currentName || 'YourStartup';
+    const industry = document.getElementById('industryFilter').value;
+    const pitch = PITCH_TEMPLATES[0](name, industry);
+    document.getElementById('pitchBox').textContent = pitch;
+}
+
+function copyPitch() {
+    const text = document.getElementById('pitchBox').textContent;
+    navigator.clipboard.writeText(text).then(() => showToast('📋 Deck copied!')).catch(() => alert(text));
+}
+
+// =====================================================
+//  EXPORT / SHARE
+// =====================================================
+function exportToLinkedIn() {
+    if (!currentName) { alert('Generate a name first, boss.'); return; }
+    const industry = rand(["synergy","blockchain","AI-driven dreams","emotional SaaS","quantum vibes","the metaverse","Web4","decentralized hope","verticalized horizontal platforms","B2B2C synergy"]);
+    const text = `🚀 Excited to announce ${currentName}!\n\nWe're revolutionizing ${industry} with our proprietary ${rand(['AI-first','blockchain-native','cloud-agnostic','data-centric','purpose-driven'])} platform.\n\n${rand(VALUE_PHRASES)}.\n\nWe're looking for passionate believers to join our journey. 🙌\n\nDM for the deck. The future is now.\n\n#Startup #${currentName.replace(/\s/g,'')} #Disruption #Innovation #Hustle`;
+    navigator.clipboard.writeText(text).then(() => {
+        confetti({ particleCount: 40, spread: 50, origin: { y: 0.8 }, colors: ['#0077b5'] });
+        showToast('💼 LinkedIn post copied!');
+    }).catch(() => alert(text));
+}
+
+function exportToTwitter() {
+    if (!currentName) { alert('Generate a name first!'); return; }
+    const text = `🦄 Just discovered my future unicorn startup name: "${currentName}"\n\n${rand(VALUE_PHRASES)}\n\n#StartupLife #Hustle #Vibes`;
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+}
+
+// =====================================================
+//  DARK MODE
+// =====================================================
+function toggleDarkFounder() {
+    isDarkFounder = !isDarkFounder;
+    document.body.classList.toggle('dark-founder', isDarkFounder);
+    const btn = document.getElementById('darkModeBtn');
+    btn.classList.toggle('active', isDarkFounder);
+    btn.textContent = isDarkFounder ? '☀️ Light Mode' : '🌙 Dark Founder';
+    confetti({ particleCount: 20, spread: 30, origin: { y: 0.9 }, colors: ['#ffffff','#aaa'] });
+}
+
+// =====================================================
+//  TOAST
+// =====================================================
+function showToast(msg) {
+    const el = document.createElement('div');
+    el.style.cssText = `
+        position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
+        background:#1a0f2e; border:1px solid var(--border); border-radius:2rem;
+        padding:0.6rem 1.5rem; font-family:'Space Mono',monospace; font-size:0.75rem;
+        color:var(--text); z-index:9999; white-space:nowrap;
+        animation:slidein 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    `;
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2500);
+}
+
+// =====================================================
+//  TABS
+// =====================================================
+function switchTab(tab) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(`panel-${tab}`).classList.add('active');
+    document.querySelectorAll('.tab').forEach(t => {
+        if (t.textContent.toLowerCase().includes(tab.replace('generator','generate')) ||
+            (tab === 'generator' && t.textContent.includes('Generate')) ||
+            (tab === 'battle' && t.textContent.includes('Battle')) ||
+            (tab === 'roast' && t.textContent.includes('Roast')) ||
+            (tab === 'pitch' && t.textContent.includes('Pitch')) ||
+            (tab === 'history' && t.textContent.includes('History'))) {
+            t.classList.add('active');
+        }
+    });
+}
+
+// =====================================================
+//  KEYBOARD SHORTCUTS
+// =====================================================
+document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+    if (e.code === 'Space') { e.preventDefault(); generateAndDisplay(); }
+    if (e.code === 'KeyS' && !e.ctrlKey) saveName();
+    if (e.code === 'KeyB') switchTab('battle');
+    if (e.code === 'KeyR') { e.preventDefault(); switchTab('roast'); }
+    if (e.code === 'KeyH') switchTab('history');
+    if (e.code === 'KeyC') chaosX5();
+});
+
+// =====================================================
+//  EASTER EGGS
+// =====================================================
+let clickCount = 0;
+document.getElementById('unicornEmoji').addEventListener('click', () => {
+    clickCount++;
+    if (clickCount === 5) {
+        showToast('🦄 Unicorn unlocked! Secret mode: PEGASUS');
+        confetti({ particleCount: 300, spread: 160, startVelocity: 40 });
+        clickCount = 0;
+    }
+});
+
+// Secret: type "falopa" to go cosmic
+let typed = '';
+document.addEventListener('keypress', e => {
+    typed += e.key.toLowerCase();
+    if (typed.includes('falopa')) {
+        typed = '';
+        document.getElementById('chaosLevel').value = 'cosmic';
+        showToast('💊 FALOPA MODE ACTIVATED');
+        for (let i = 0; i < 3; i++) setTimeout(() => generateAndDisplay(), i * 200);
+    }
+    if (typed.length > 20) typed = typed.slice(-20);
+});
+
+// =====================================================
+//  INIT
+// =====================================================
+document.getElementById('generateBtn').addEventListener('click', generateAndDisplay);
+document.getElementById('chaosBtn').addEventListener('click', chaosX5);
+document.getElementById('saveBtn').addEventListener('click', saveName);
+document.getElementById('linkedinBtn').addEventListener('click', exportToLinkedIn);
+document.getElementById('tweetBtn').addEventListener('click', exportToTwitter);
+document.getElementById('darkModeBtn').addEventListener('click', toggleDarkFounder);
+
+// Auto-generate on load
+window.addEventListener('DOMContentLoaded', () => {
+    renderHistory();
+    renderBattleRecord();
+    newBattle();
+    generateAndDisplay();
+
+    // Keyboard hint
+    setTimeout(() => showToast('⌨️ SPACE=generate · S=save · C=chaos · B=battle'), 2000);
+});
+</script>
+</body>
+</html>
