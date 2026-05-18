@@ -1,3 +1,4 @@
+cat > index.html << 'EOF'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,28 +25,54 @@
         <button class="tab" data-tab="history">📜 History</button>
     </div>
 
+    <!-- Generator Panel -->
     <div class="panel active" id="panel-generator">
+        <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 1rem; flex-wrap: wrap;">
+            <select id="chaosLevel" style="background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:1rem; padding:0.5rem; color:var(--text);">
+                <option value="mild">🧘 Mild (VC-safe)</option>
+                <option value="medium" selected>🌶️ Medium (YC-ready)</option>
+                <option value="extreme">🔥 Extreme (unhinged)</option>
+                <option value="cosmic">🌌 Cosmic (unspeakable)</option>
+            </select>
+            <select id="nameStyle" style="background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:1rem; padding:0.5rem; color:var(--text);">
+                <option value="random">🎲 Random</option>
+                <option value="compound">🔗 Compound</option>
+                <option value="verb">⚡ Verb-First</option>
+                <option value="acronym">🔤 Fake Acronym</option>
+                <option value="latin">🏛️ Fake Latin</option>
+                <option value="number">🔢 Number Soup</option>
+            </select>
+        </div>
+
         <div class="name-box">
             <div id="startupName">⚡ press GENERATE</div>
-            <div id="valuationBadge" style="margin-top:0.75rem; font-size:0.75rem; color:var(--muted)"></div>
+            <div id="nameTier" style="display:none; margin-top:0.5rem;"></div>
+            <div id="valuationBadge" style="margin-top:0.5rem; font-size:0.75rem; color:var(--muted)"></div>
         </div>
+
+        <div id="generatedCounter" style="display:none; text-align:center; font-size:0.7rem; color:var(--muted); margin-bottom:1rem;">
+            Generated: <span id="genCount">0</span> names this session
+        </div>
+
         <div class="controls">
             <button class="btn btn-primary" id="generateBtn">🌀 GENERATE</button>
+            <button class="btn btn-dark" id="chaosBtn">💥 CHAOS x5</button>
+            <button class="btn btn-dark" id="saveBtn">❤️ Save</button>
             <button class="btn btn-dark" id="linkedinBtn">💼 LinkedIn</button>
+            <button class="btn btn-dark" id="tweetBtn">𝕏 Tweet</button>
             <button class="btn btn-dark" id="darkModeBtn">🌙 Dark Founder</button>
         </div>
     </div>
 
-    <div class="panel" id="panel-battle"><p class="tagline" style="text-align:center">⚔️ Battle Mode — Coming in v2.0</p></div>
-    <div class="panel" id="panel-roast"><p class="tagline" style="text-align:center">🔥 Roast Mode — Coming in v2.0</p></div>
-    <div class="panel" id="panel-pitch"><p class="tagline" style="text-align:center">📊 Pitch Deck — Coming in v2.0</p></div>
-    <div class="panel" id="panel-history"><p class="tagline" style="text-align:center">📜 History — Coming in v2.0</p></div>
+    <div class="panel" id="panel-battle"><p class="tagline" style="text-align:center">⚔️ Battle Mode — Coming in v2.5</p></div>
+    <div class="panel" id="panel-roast"><p class="tagline" style="text-align:center">🔥 Roast Mode — Coming in v2.5</p></div>
+    <div class="panel" id="panel-pitch"><p class="tagline" style="text-align:center">📊 Pitch Deck — Coming in v2.5</p></div>
+    <div class="panel" id="panel-history"><p class="tagline" style="text-align:center">📜 History — Coming in v2.5</p></div>
 
-    <div class="footer">🦄 VIBECRAFT ULTRA · Pre-revenue · Pre-product · Pre-idea</div>
+    <div class="footer">🦄 VIBECRAFT ULTRA · Pre-revenue · Pre-product · Pre-idea · 700+ words of pure falopa</div>
 </div>
 
 <script src="js/config.js"></script>
-<script src="js/utils.js"></script>
 <script src="js/generators.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/main.js"></script>
