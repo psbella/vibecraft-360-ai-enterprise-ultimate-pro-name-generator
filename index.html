@@ -6,10 +6,9 @@
     <title>🦄 VIBECRAFT ULTRA</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <script src="confetti.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
 </head>
 <body>
-<div class="bg-noise"></div>
 <div class="container">
     <div class="header">
         <div class="unicorn-wrap" id="unicornEmoji">🦄</div>
@@ -25,23 +24,29 @@
         <button class="tab" data-tab="history">📜 History</button>
     </div>
 
-    <!-- Paneles... (igual que antes pero sin scripts inline) -->
-    <div class="panel active" id="panel-generator">...</div>
-    <div class="panel" id="panel-battle">...</div>
-    <div class="panel" id="panel-roast">...</div>
-    <div class="panel" id="panel-pitch">...</div>
-    <div class="panel" id="panel-history">...</div>
+    <div class="panel active" id="panel-generator">
+        <div class="name-box">
+            <div id="startupName">⚡ press GENERATE</div>
+            <div id="valuationBadge" style="margin-top:0.75rem; font-size:0.75rem; color:var(--muted)"></div>
+        </div>
+        <div class="controls">
+            <button class="btn btn-primary" id="generateBtn">🌀 GENERATE</button>
+            <button class="btn btn-dark" id="linkedinBtn">💼 LinkedIn</button>
+            <button class="btn btn-dark" id="darkModeBtn">🌙 Dark Founder</button>
+        </div>
+    </div>
 
-    <div class="footer">🦄 VIBECRAFT ULTRA v2.0 · Pre-revenue · Pre-product · Pre-idea</div>
+    <div class="panel" id="panel-battle"><p class="tagline" style="text-align:center">⚔️ Battle Mode — Coming in v2.0</p></div>
+    <div class="panel" id="panel-roast"><p class="tagline" style="text-align:center">🔥 Roast Mode — Coming in v2.0</p></div>
+    <div class="panel" id="panel-pitch"><p class="tagline" style="text-align:center">📊 Pitch Deck — Coming in v2.0</p></div>
+    <div class="panel" id="panel-history"><p class="tagline" style="text-align:center">📜 History — Coming in v2.0</p></div>
+
+    <div class="footer">🦄 VIBECRAFT ULTRA · Pre-revenue · Pre-product · Pre-idea</div>
 </div>
 
 <script src="js/config.js"></script>
 <script src="js/utils.js"></script>
 <script src="js/generators.js"></script>
-<script src="js/battle.js"></script>
-<script src="js/roast.js"></script>
-<script src="js/pitch.js"></script>
-<script src="js/history.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/main.js"></script>
 </body>
